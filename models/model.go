@@ -1,11 +1,26 @@
 package models
 
-import "time"
+import (
+	"github.com/astaxie/beego/orm"
+	_ "github.com/go-sql-driver/mysql"
+	"time"
+)
+
+func init() {
+	// set default database
+	orm.RegisterDataBase("default", "mysql", "root:123456@tcp(127.0.0.1:3306)/lovehome?charset=utf8", 30)
+
+	// register model
+	orm.RegisterModel(new(User), new(House), new(Area), new(Facility), new(HouseImage), new(OrderHouse))
+
+	// create table
+	orm.RunSyncdb("default", false, true)
+}
 
 type User struct {
 	Id           int           `json:"user_id"`
 	Name         string        `orm:"size(32);unique" json:"name"`
-	PasswordHash string        `orm:"size(128)" json:"password"`
+	PasswordHash string        `orm:"size(128)"json:"password"`
 	Mobile       string        `orm:"size(11)" json:"mobile"`
 	RealName     string        `orm:"size(32)" json:"real_Name"`
 	IdCard       string        `orm:"size(20)" json:"id_card"`
@@ -37,27 +52,27 @@ type House struct {
 	Ctime         time.Time     `orm:"auto_now_add;type(datetime)"json:"ctime"`
 }
 
-//首页最高展示的房屋数量
+// HOME_PAGE_MAX_HOUSES 首页最高展示的房屋数量
 var HOME_PAGE_MAX_HOUSES int = 5
 
-//房屋列表页面每页显示条目数
+// HOUSE_LIST_PAGE_CAPACITY 房屋列表页面每页显示条目数
 var HOUSE_LIST_PAGE_CAPACITY int = 2
 
-/* 区域信息 table_name = area */
+// Area  区域信息 table_name = area
 type Area struct {
 	Id     int      `json:"aid"`                        //区域编号
 	Name   string   `orm:"size(32)" json:"aname"`       //区域名字
 	Houses []*House `orm:"reverse(many)" json:"houses"` //区域所有的房屋
 }
 
-/* 设施信息 table_name = "facility"*/
+// Facility 设施信息 table_name = "facility"
 type Facility struct {
 	Id     int      `json:"fid"`     //设施编号
 	Name   string   `orm:"size(32)"` //设施名字
 	Houses []*House `orm:"rel(m2m)"` //都有哪些房屋有此设施
 }
 
-/* 房屋图片 table_name = "house_image"*/
+// HouseImage 房屋图片 table_name = "house_image"
 type HouseImage struct {
 	Id    int    `json:"house_image_id"`         //图片id
 	Url   string `orm:"size(256)" json:"url"`    //图片url
@@ -74,7 +89,7 @@ const (
 	ORDER_STATUS_REJECTED     = "REJECTED"     //已拒单
 )
 
-/* 订单 table_name = order */
+// OrderHouse 订单 table_name = order
 type OrderHouse struct {
 	Id          int       `json:"order_id"`               //订单编号
 	User        *User     `orm:"rel(fk)" json:"user_id"`  //下单的用户编号

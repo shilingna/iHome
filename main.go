@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
+	_ "iHome/models"
 	_ "iHome/routers"
 	"net/http"
 	"strings"
